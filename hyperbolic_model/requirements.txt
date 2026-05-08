@@ -1,0 +1,9 @@
+kaggle
+torch
+torch_geometric
+geoopt
+scikit-learn
+pandas
+numpy
+polars
+pyarrow

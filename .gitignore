@@ -1,0 +1,16 @@
+# Data and models
+data/
+*.pt
+embeddings.pt
+
+# Python
+__pycache__/
+*.pyc
+.env
+venv/
+env/
+.DS_Store
+
+# Rust
+data_parser/target/
+data_parser/Cargo.lock

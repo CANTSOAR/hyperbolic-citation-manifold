@@ -1,0 +1,100 @@
+That is an incredibly elegant way to define success. In machine learning, what you are describing is a model with perfect **structural inductive bias**.
+
+If the geometry is specified perfectly, you shouldn't have to write a rule that says "leave an empty space here." The competing forces—the physical springs of the citations pulling concepts together, and the hyperbolic expansion pushing them apart—will naturally tear open voids in the latent space where the math expects a topological bridge to exist, but human researchers simply haven't discovered it yet.
+
+Here is the complete project scope and technical architecture to build this, moving from the raw arXiv data down to the localized hardware implementation.
+
+---
+
+### **Project Scope: The Hyperbolic Citation Manifold**
+
+**Objective:** Construct a self-organizing, hyperbolic embedding space of the arXiv physics and mathematics citation graph. The model must dynamically map foundational papers to the interior, push frontier papers to the boundary, and naturally expose structural voids representing undiscovered paradigms.
+
+**Core Stack:** * **Data Parsing:** Rust (for high-performance graph traversal and parsing).
+
+* **Model Training:** Python, PyTorch, `geoopt`.
+* **Infrastructure:** Deepstack Dell server (for local, long-running tensor operations).
+
+---
+
+### **Phase 1: Data Acquisition and Graph Construction**
+
+You need to convert raw arXiv metadata into a strict directed acyclic graph (DAG) where edges represent citations.
+
+1. **The Dataset:** Use the official **arXiv Dataset** on Kaggle (updated weekly, contains metadata and citations for ~2 million papers).
+2. **The Parser (Rust):** * Write a fast parser to extract the `paper_id` and `references` fields.
+* Filter specifically for `math` and `physics` categories to keep the graph domain-dense.
+* Construct an adjacency matrix.
+
+
+3. **Graph Pruning:** * Remove isolated nodes (papers with zero citations in or out).
+* Identify the "roots" (papers that are cited heavily but cite nothing else in the dataset). These are your absolute origin points.
+
+
+
+---
+
+### **Phase 2: The Hyperbolic Architecture**
+
+This is where you define the geometry so that the "gaps" form naturally. You will build a **Hyperbolic Graph Convolutional Network (HGCN)**.
+
+1. **The Manifold:** Initialize a Poincaré Ball manifold using `geoopt`.
+* The distance metric between two vectors $x$ and $y$ in this space isn't Euclidean. You will use the Poincaré distance:
+
+$$d_\mathbb{D}(x, y) = \text{arcosh}\left(1 + 2\frac{||x - y||^2}{(1 - ||x||^2)(1 - ||y||^2)}\right)$$
+
+
+
+
+2. **The Encoder:** * Pass the node features (e.g., a TF-IDF or lightweight Transformer embedding of the paper's abstract) through a standard linear layer.
+* Use the **Exponential Map** to project those Euclidean features onto the hyperbolic manifold.
+
+
+3. **The Message Passing (The Springs):**
+* Implement hyperbolic graph convolutions. Instead of simple averaging, the model calculates the **Fréchet Mean** of a paper's neighbors. If Paper A cites Paper B and C, Paper A is pulled toward their center of mass in the curved space.
+
+
+
+---
+
+### **Phase 3: The Physics of the "Gaps" (Loss Functions)**
+
+To guarantee that empty spaces naturally form for missing ideas, you must balance attractive and repulsive forces without over-regularizing.
+
+1. **Contrastive Graph Loss (The Push/Pull):**
+* **Positive pairs:** If Paper A cites Paper B, minimize their hyperbolic distance.
+* **Negative pairs (The Rubber Band):** Randomly sample nodes that do *not* share an edge, and maximize their distance.
+
+
+2. **Entailment Cone Loss (The Gravity):**
+* Enforce the hierarchical structure. If Paper A (new) cites Paper B (old foundation), penalize the model if the norm of B is greater than A ($||B|| > ||A||$). This forces older, highly cited papers inward, and new frontier papers outward.
+
+
+3. **The Gap Generator (Avoiding Uniformity):** * *Crucial Step:* Do **not** apply a strict global uniformity loss. If you force the points to distribute perfectly evenly across the entire sphere, you will artificially erase the gaps. By only pushing explicitly unrelated clusters away from each other, the exponential volume of the hyperbolic space will naturally tear open vast, empty "saddle points" between isolated disciplines.
+
+---
+
+### **Phase 4: Training and Infrastructure**
+
+Deploy the training pipeline directly on Deepstack to handle the heavy matrix operations of the Fréchet mean calculations.
+
+1. **Mini-Batching on Graphs:** You cannot load a 2-million-node graph into VRAM. Use **NeighborSampler** to sample localized sub-graphs (a paper and its 2-hop citation network) for each forward pass.
+2. **Riemannian Optimization:** Standard Adam won't work in curved space. You must use `geoopt.optim.RiemannianAdam` to correctly update the weights along the curvature of the ball.
+
+---
+
+### **Phase 5: Validation and "Gap" Discovery**
+
+How do you prove the model successfully left spaces for undiscovered ideas? You test its predictive intuition.
+
+1. **Temporal Split (The Time Machine Test):** * Train the model *only* on papers published before 2024.
+* The model will form its geometry and leave its natural structural gaps.
+
+
+2. **Link Prediction (The Proof):** * Take the actual papers published in 2025 and 2026. Feed their abstracts into the encoder to get their coordinates in the pre-2024 space.
+* If the model was specified perfectly, the 2025 paradigm-shifting papers won't land on top of old nodes. They will drop *exactly* into the center of the massive, empty voids the model left open.
+* You measure this by seeing if the model can predict which old papers the new 2025 paper will cite, based purely on which void it falls into.
+
+
+
+If a new paper lands in an empty gap and the model correctly predicts its citations based on its neighboring clusters, you have successfully built a space that intuits the shape of what it does not yet know.
